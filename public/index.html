@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Mengubah warna status bar HP agar menyatu dengan aplikasi -->
+    <meta name="theme-color" content="#e4e4e7" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+    
+    <title>Modern Minimalist To-Do</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        } 
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #a1a1aa;
+            border-radius: 8px;
+        }
+
+        /* Scrollbar lebih gelap sedikit */
+        .dark ::-webkit-scrollbar-thumb {
+            background: #27272a;
+        }
+    </style>
+</head>
+
+<!-- Latar belakang luar dinaikkan menjadi bg-zinc-300 -->
+
+<body
+    class="bg-zinc-300 dark:bg-[#09090b] text-zinc-800 dark:text-zinc-200 min-h-screen p-4 md:p-8 transition-colors duration-300 antialiased">
+    <div class="max-w-5xl mx-auto flex flex-col gap-6">
+
+        <!-- Baris Atas: Form dan Tugas Berjalan -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <!-- Bento Box 1: Form (Menggunakan bg-zinc-200, bukan putih) -->
+            <div
+                class="md:col-span-1 bg-zinc-200 dark:bg-[#18181b] rounded-xl p-6 shadow-sm border border-zinc-400 dark:border-zinc-800/80 flex flex-col gap-5 transition-colors">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-xl font-semibold tracking-tight">🎯 Task Manager</h1>
+                    <button id="themeToggleBtn"
+                        class="p-2.5 bg-zinc-300 dark:bg-[#09090b] rounded-full hover:bg-zinc-400 dark:hover:bg-zinc-800 transition-colors text-sm border border-zinc-400 dark:border-zinc-800"
+                        title="Ganti Tema">
+                        🌙
+                    </button>
+                </div>
+
+                <form id="taskForm" class="flex flex-col gap-4 mt-1">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-semibold text-zinc-600 uppercase tracking-wider pl-1">Nama
+                            Tugas</label>
+                        <!-- Input menggunakan bg-zinc-100 -->
+                        <input type="text" id="title" maxlength="255" placeholder="Apa fokus Anda hari ini?" required
+                            class="w-full p-3.5 rounded-lg bg-zinc-100 dark:bg-[#09090b] border border-zinc-400 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 dark:focus:ring-zinc-400 text-sm transition-all placeholder:text-zinc-500">
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[11px] font-semibold text-zinc-600 uppercase tracking-wider pl-1">Tenggat
+                            Waktu</label>
+                        <input type="datetime-local" id="due_date"
+                            class="w-full p-3.5 rounded-lg bg-zinc-100 dark:bg-[#09090b] border border-zinc-400 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 dark:focus:ring-zinc-400 text-zinc-700 dark:text-zinc-400 text-sm transition-all">
+                    </div>
+                    <button type="submit"
+                        class="mt-2 bg-zinc-800 hover:bg-zinc-900 dark:bg-zinc-200 dark:hover:bg-white dark:text-zinc-900 text-white font-medium py-3.5 rounded-lg transition-all shadow-sm active:scale-[0.98] text-sm">
+                        Tambah Tugas
+                    </button>
+                </form>
+            </div>
+
+            <!-- Bento Box 2: Sedang Berjalan (Menggunakan bg-zinc-200) -->
+            <div
+                class="md:col-span-2 bg-zinc-200 dark:bg-[#18181b] p-6 rounded-xl shadow-sm border border-zinc-400 dark:border-zinc-800/80 transition-colors flex flex-col">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <h2 class="text-lg font-semibold tracking-tight flex items-center gap-2">⏳ Sedang Berjalan</h2>
+                    <div class="relative w-full sm:w-64">
+                        <!-- Search input bg-zinc-100 -->
+                        <input type="text" id="searchInput" placeholder="Cari tugas..."
+                            class="w-full pl-10 p-2.5 rounded-lg bg-zinc-100 dark:bg-[#09090b] border border-zinc-400 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 dark:focus:ring-zinc-400 text-sm transition-all">
+                        <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-zinc-500" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div id="activeTasks" class="flex flex-col gap-3 min-h-[150px]"></div>
+            </div>
+        </div>
+
+        <!-- Baris Bawah: Kotak Selesai (Menggunakan bg-zinc-200) -->
+        <div
+            class="bg-zinc-200 dark:bg-[#18181b] p-6 rounded-xl shadow-sm border border-zinc-400 dark:border-zinc-800/80 transition-colors">
+            <!-- <h2 class="text-lg font-semibold tracking-tight mb-6 flex items-center gap-2 text-zinc-800 dark:text-zinc-200">
+                <span class="text-emerald-600">✓</span> Selesai
+            </h2> -->
+            
+            <div class="flex justify-between items-center mb-6">
+                <h2
+                    class="text-lg font-semibold tracking-tight flex items-center gap-2 text-zinc-800 dark:text-zinc-200">
+                    <span class="text-emerald-600">✓</span> Selesai
+                </h2>
+                <button onclick="clearCompletedTasks()"
+                    class="text-[11px] font-medium text-zinc-500 hover:text-red-600 bg-zinc-300/50 hover:bg-red-500/10 dark:bg-zinc-800 dark:hover:bg-red-500/20 px-3 py-1.5 rounded-md transition-colors border border-transparent hover:border-red-500/20">
+                    Sapu Bersih
+                </button>
+            </div>
+
+            <div id="completedTasks" class="flex flex-col gap-3 min-h-[100px] mb-6"></div>
+
+            <div class="flex justify-between items-center border-t border-zinc-400 dark:border-zinc-800/80 pt-5">
+                <button id="prevPageBtn" onclick="changePage(currentPage - 1)"
+                    class="px-4 py-2 bg-zinc-300 hover:bg-zinc-400 dark:bg-[#09090b] dark:hover:bg-zinc-800 border border-zinc-400 dark:border-zinc-800 rounded-lg text-xs font-medium disabled:opacity-50 transition-all text-zinc-800 dark:text-zinc-400">
+                    ← Sebelumnya
+                </button>
+                <span id="pageIndicator" class="text-xs font-medium text-zinc-600 dark:text-zinc-400">Hal. 1</span>
+                <button id="nextPageBtn" onclick="changePage(currentPage + 1)"
+                    class="px-4 py-2 bg-zinc-300 hover:bg-zinc-400 dark:bg-[#09090b] dark:hover:bg-zinc-800 border border-zinc-400 dark:border-zinc-800 rounded-lg text-xs font-medium disabled:opacity-50 transition-all text-zinc-800 dark:text-zinc-400">
+                    Selanjutnya →
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Edit Tugas -->
+    <div id="editModal"
+        class="fixed inset-0 bg-zinc-900/60 dark:bg-black/60 z-50 hidden flex justify-center items-center backdrop-blur-sm transition-opacity">
+        <div class="bg-zinc-200 dark:bg-[#18181b] rounded-xl p-7 w-11/12 max-w-md shadow-2xl transform transition-transform duration-200 scale-95 border border-zinc-400 dark:border-zinc-800"
+            id="editModalContent">
+            <h3 class="text-xl font-semibold tracking-tight mb-5">Edit Tugas</h3>
+            <form id="editForm" class="flex flex-col gap-4">
+                <input type="hidden" id="edit_id">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[11px] font-semibold text-zinc-600 uppercase tracking-wider pl-1">Judul
+                        Tugas</label>
+                    <input type="text" id="edit_title" maxlength="255" required
+                        class="w-full p-3.5 rounded-lg bg-zinc-100 dark:bg-[#09090b] border border-zinc-400 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 dark:focus:ring-zinc-400 text-sm transition-all">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[11px] font-semibold text-zinc-600 uppercase tracking-wider pl-1">Tenggat
+                        Waktu</label>
+                    <input type="datetime-local" id="edit_due_date"
+                        class="w-full p-3.5 rounded-lg bg-zinc-100 dark:bg-[#09090b] border border-zinc-400 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 dark:focus:ring-zinc-400 text-zinc-700 dark:text-zinc-400 text-sm transition-all">
+                </div>
+                <div class="flex justify-end gap-3 mt-4">
+                    <button type="button" onclick="closeEditModal()"
+                        class="px-5 py-2.5 rounded-lg bg-zinc-300 hover:bg-zinc-400 dark:bg-zinc-800 dark:hover:bg-zinc-700 font-medium text-sm transition-colors text-zinc-800 dark:text-zinc-300">Batal</button>
+                    <button type="submit"
+                        class="px-5 py-2.5 rounded-lg bg-zinc-800 hover:bg-zinc-900 dark:bg-zinc-200 dark:hover:bg-white dark:text-zinc-900 text-white font-medium text-sm shadow-sm transition-colors">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+  <!-- Notifikasi Toast (Posisi Tengah Bawah untuk Mobile & Desktop) -->
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 translate-y-20 opacity-0 transition-all duration-300 bg-zinc-800 dark:bg-white dark:text-zinc-900 text-white px-6 py-3.5 rounded-full shadow-lg shadow-zinc-900/20 z-50 pointer-events-none text-sm font-medium border border-zinc-700 dark:border-zinc-200 w-max max-w-[90vw] text-center"></div>
+<!-- 
+    <script src="js/app.js"></script> -->
+
+    <script src="js/app.js?v=2"></script>
+</body>
+
+</html>
